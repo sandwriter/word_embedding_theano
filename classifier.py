@@ -25,8 +25,7 @@ class NNet(object):
 
     self.w_classifier = theano.shared(0.2 * numpy.random.uniform(
         -1.0, 1.0, (num_hidden_layer)).astype(theano.config.floatX))
-    self.b_classifier = theano.shared(numpy.random.uniform(-1.0, 1.0).astype(
-        theano.config.floatX))
+    self.b_classifier = theano.shared(numpy.random.uniform(-1.0, 1.0))
 
     self.params = [self.embedding, self.w_input, self.b_input,
                    self.w_classifier, self.b_classifier]
@@ -37,27 +36,26 @@ class NNet(object):
     """
     The scalar output of neural network.
     """
-    input = embedding[x].reshape(x.shape[0],
-                                 context_window_size * embedding_dimension)
-    activation = T.tanh(T.dot(input, w_input) + b_input)
-    output = T.tanh(T.dot(activation, w_classifier) + b_classifier)
+    input = self.embedding[x].reshape((x.shape[0], self.context_window_size *
+                                       self.embedding_dimension))
+    activation = T.tanh(T.dot(input, self.w_input) + self.b_input)
+    output = T.tanh(T.dot(activation, self.w_classifier) + self.b_classifier)
     return output
 
   def Train(self, input, mutations):
+    print(input)
+    print(mutations)
     return self.classifier(input, mutations)
 
   def GetClassifier(self):
 
-    def PairwiseLoss(f_x, f_mutation):
-      return max(0, 1 - f_x + f_mutation)
+    def PairwiseLoss(mutation, x):
+      return T.maximum(0., 1. - self.F(x) + self.F(mutation))
 
     input = T.ivector('input')
     mutations = T.imatrix('mutation')
-    assert (input.shape[0] % 2 == 1) and (
-        input.mutations.shape[1] % 2 ==
-        1), 'context window size should be odd number.'
 
-    components, updates = theano.scan(fn=Mutation,
+    components, updates = theano.scan(fn=PairwiseLoss,
                                       sequences=[mutations],
                                       non_sequences=input)
     loss = components.sum()
