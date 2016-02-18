@@ -1,7 +1,12 @@
 import sys
+import pydot
 import numpy
 import theano
 import theano.tensor as T
+
+# theano.config.optimizer = 'None'
+# theano.config.exception_verbosity = 'high'
+# theano.config.linker = 'py'
 
 
 class NNet(object):
@@ -15,17 +20,24 @@ class NNet(object):
     self.learning_rate = learning_rate
 
     self.embedding = theano.shared(0.2 * numpy.random.uniform(-1.0, 1.0, (
-        vocabulary_size + 1, embedding_dimension)).astype(theano.config.floatX))
+        vocabulary_size + 1, embedding_dimension)).astype(theano.config.floatX),
+                                   name='embedding')
 
     self.w_input = theano.shared(0.2 * numpy.random.uniform(
         -1.0, 1.0, (context_window_size * embedding_dimension,
-                    num_hidden_layer)).astype(theano.config.floatX))
-    self.b_input = theano.shared(numpy.random.uniform(-1.0, 1.0, (
-        num_hidden_layer,)).astype(theano.config.floatX))
+                    num_hidden_layer)).astype(theano.config.floatX),
+                                 name='w_input')
+    self.b_input = theano.shared(
+        numpy.random.uniform(-1.0, 1.0,
+                             (num_hidden_layer,)).astype(theano.config.floatX),
+        name='b_input')
 
     self.w_classifier = theano.shared(0.2 * numpy.random.uniform(
-        -1.0, 1.0, (num_hidden_layer)).astype(theano.config.floatX))
-    self.b_classifier = theano.shared(numpy.random.uniform(-1.0, 1.0))
+        -1.0, 1.0, (num_hidden_layer)).astype(theano.config.floatX),
+                                      name='w_classifier')
+    self.b_classifier = theano.shared(
+        numpy.random.uniform(-1.0, 1.0),
+        name='b_classifier')
 
     self.params = [self.embedding, self.w_input, self.b_input,
                    self.w_classifier, self.b_classifier]
@@ -36,15 +48,15 @@ class NNet(object):
     """
     The scalar output of neural network.
     """
-    input = self.embedding[x].reshape((x.shape[0], self.context_window_size *
+    # self.embedding[x] expands each element of x to be the row: embedding[element]
+    # TODO: It only takes a single context window. Change to do batch processing.
+    input = self.embedding[x].reshape((1, self.context_window_size *
                                        self.embedding_dimension))
     activation = T.tanh(T.dot(input, self.w_input) + self.b_input)
     output = T.tanh(T.dot(activation, self.w_classifier) + self.b_classifier)
     return output
 
   def Train(self, input, mutations):
-    print(input)
-    print(mutations)
     return self.classifier(input, mutations)
 
   def GetClassifier(self):
@@ -53,9 +65,10 @@ class NNet(object):
       return T.maximum(0., 1. - self.F(x) + self.F(mutation))
 
     input = T.ivector('input')
-    mutations = T.imatrix('mutation')
+    mutations = T.imatrix('mutations')
 
     components, updates = theano.scan(fn=PairwiseLoss,
+                                      outputs_info=None,
                                       sequences=[mutations],
                                       non_sequences=input)
     loss = components.sum()
