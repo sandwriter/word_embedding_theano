@@ -7,8 +7,8 @@ python:
   - "3.4"
   - "3.5"
 before_install:
-  - apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
+  - sudo apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
 install:
-  - pip install Theano
+  - sudo pip install Theano
 script:
   - python -m unittest classifier_test
