@@ -1,0 +1,13 @@
+language: python
+python:
+  - "2.6"
+  - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+before_install:
+  - sudo apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
+  - sudo pip install Theano
+script:
+  - python -m unittest classifier_test
