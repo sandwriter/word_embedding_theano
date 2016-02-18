@@ -9,6 +9,8 @@ python:
 before_install:
   - sudo apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
 install:
-  - sudo pip install Theano --user
+  - sudo virtualenv --system-site-packages -p python2.7 theano-env
+  - sudo source theano-env/bin/activate
+  - sudo pip install Theano
 script:
   - python -m unittest classifier_test
