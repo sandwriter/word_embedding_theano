@@ -1,13 +1,27 @@
 language: python
+sudo: false
+branches:
+  only:
+    - master
 python:
-  - "2.6"
   - "2.7"
-  - "3.2"
-  - "3.3"
   - "3.4"
-  - "3.5"
+addons:
+  apt:
+    packages:
+    - libblas-dev
+    - liblapack-dev
+    - gfortran
 before_install:
-  - sudo apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
-  - pip install Theano
+  - pip install -U pip
+  - apt-get install python-numpy python-scipy python-dev python-pip python-nose g++ libopenblas-dev git
+install:
+  - travis_wait travis_retry pip install -r requirements.txt
 script:
   - python -m unittest classifier_test
+cache:
+  - apt
+  - directories:
+    - $HOME/.cache/pip
+    - $HOME/.theano
+    
