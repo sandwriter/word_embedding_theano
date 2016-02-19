@@ -1,8 +1,5 @@
 language: python
 sudo: false
-branches:
-  only:
-    - master
 python:
   - "2.7"
   - "3.4"
@@ -11,6 +8,7 @@ addons:
     packages:
     - libblas-dev
     - liblapack-dev
+    - gfortran
 before_install:
   - pip install -U pip
 install:
@@ -21,5 +19,4 @@ cache:
   - apt
   - directories:
     - $HOME/.cache/pip
-    - $HOME/.theano
-    
+    - $HOME/.theano    
