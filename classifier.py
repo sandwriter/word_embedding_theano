@@ -1,5 +1,5 @@
 import sys
-import pydot
+# import pydot
 import numpy
 import theano
 import theano.tensor as T
