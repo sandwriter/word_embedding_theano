@@ -20,7 +20,7 @@ class NNet(object):
     self.learning_rate = learning_rate
 
     self.embedding = theano.shared(0.2 * numpy.random.uniform(-1.0, 1.0, (
-        vocabulary_size + 1, embedding_dimension)).astype(theano.config.floatX),
+        vocabulary_size, embedding_dimension)).astype(theano.config.floatX),
                                    name='embedding')
 
     self.w_input = theano.shared(0.2 * numpy.random.uniform(
@@ -53,7 +53,9 @@ class NNet(object):
     input = self.embedding[x].reshape((1, self.context_window_size *
                                        self.embedding_dimension))
     activation = T.tanh(T.dot(input, self.w_input) + self.b_input)
-    output = T.tanh(T.dot(activation, self.w_classifier) + self.b_classifier)
+    output = T.dot(activation, self.w_classifier) + self.b_classifier
+    # TODO: Use another Tanh layer to see whether there is performance boost.
+
     return output
 
   def Train(self, input, mutations):
@@ -75,7 +77,7 @@ class NNet(object):
 
     gparams = [T.grad(loss, param) for param in self.params]
 
-    updates = [(param, self.learning_rate * gparam)
+    updates = [(param, param - self.learning_rate * gparam)
                for param, gparam in zip(self.params, gparams)]
 
     return theano.function(inputs=[input, mutations],
