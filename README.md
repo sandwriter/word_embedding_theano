@@ -4,24 +4,6 @@ Theano implementation of Paper ["Natural Language Processing (almost) from Scrat
 
 ## Status
 There are still quite a few important items to finish, but it seems like learning the embedding.
-First few lines of output of the training process. (each epoch takes ~3 hours on my laptop... Need to use GPU perhaps...)
-*******************************************
-~/Workspace/word_embedding$ python train.py
-
-vocabulary_size: 572
-
-number of sentences: 46635
-
-/usr/local/lib/python2.7/dist-packages/Theano-0.7.0-py2.7.egg/theano/scan_module/scan_perform_ext.py:133: RuntimeWarning: numpy.ndarray size changed, may indicate binary incompatibility
-
-  from scan_perform.scan_perform import *
-
-epoch 0: loss: 144234975.912176
-
-epoch 1: loss: 137165925.422383
-
-epoch 2: loss: 130193645.065526
-*******************************************
 
 ## Input
 ATIS Data. Contains 46635 sentences, with 572 words.
