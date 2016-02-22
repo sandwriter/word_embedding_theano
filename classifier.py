@@ -50,8 +50,8 @@ class NNet(object):
     """
     # self.embedding[x] expands each element of x to be the row: embedding[element]
     # TODO: It only takes a single context window. Change to do batch processing.
-    input = self.embedding[x].reshape((1, self.context_window_size *
-                                       self.embedding_dimension))
+    input = self.embedding[x].reshape((x.shape[
+        0], self.context_window_size * self.embedding_dimension))
     activation = T.tanh(T.dot(input, self.w_input) + self.b_input)
     output = T.dot(activation, self.w_classifier) + self.b_classifier
     # TODO: Use another Tanh layer to see whether there is performance boost.
@@ -63,16 +63,20 @@ class NNet(object):
 
   def GetClassifier(self):
 
-    def PairwiseLoss(mutation, x):
-      return T.maximum(0., 1. - self.F(x) + self.F(mutation))
+    def PairwiseLoss(x, mutation):
+      """
+      This function takes two matrix and return a vector by first
+      calculating the loss for each row and then take element-wise
+      maximum for each row.
+      """
+      return T.maximum(0., 1. - self.F(x) + self.F(mutation)).sum()
 
-    input = T.ivector('input')
-    mutations = T.imatrix('mutations')
+    inputs = T.tensor3(name='input', dtype='int32')
+    mutations = T.tensor3(name='mutations', dtype='int32')
 
     components, updates = theano.scan(fn=PairwiseLoss,
                                       outputs_info=None,
-                                      sequences=[mutations],
-                                      non_sequences=input)
+                                      sequences=[inputs, mutations])
     loss = components.sum()
 
     gparams = [T.grad(loss, param) for param in self.params]
@@ -80,6 +84,6 @@ class NNet(object):
     updates = [(param, param - self.learning_rate * gparam)
                for param, gparam in zip(self.params, gparams)]
 
-    return theano.function(inputs=[input, mutations],
+    return theano.function(inputs=[inputs, mutations],
                            outputs=loss,
                            updates=updates)
