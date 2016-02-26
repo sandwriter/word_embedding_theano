@@ -6,7 +6,7 @@ import theano.tensor as T
 
 # theano.config.optimizer = 'None'
 # theano.config.exception_verbosity = 'high'
-# theano.config.linker = 'py'
+theano.config.linker = 'py'
 
 
 class NNet(object):
