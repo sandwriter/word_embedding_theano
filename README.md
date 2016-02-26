@@ -25,4 +25,5 @@ You might need to install at least Theano 0.7+ and numpy to run the program.
 4. GPU perhaps, cos it is really slow right now.
 5. Normalizing the embedding?
 
-
+## Useful links
+[A nice blog about Python Internal](https://jakevdp.github.io/blog/2014/05/09/why-python-is-slow/)
